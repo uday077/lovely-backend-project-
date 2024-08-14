@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: .
-    destination: /home/ec2-user/your-app-directory
+    destination: /home/ec2-user/lovely-backend-project-
 
 hooks:
   AfterInstall:
