@@ -1,0 +1,34 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3    
+
+    - name: Add EC2 host key to known hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Setup private key
+      env:
+        PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+      run: |
+        echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+    - name: Deploy to EC2
+      env:
+        EC2_INSTANCE_HOST: ${{ secrets.EC2_HOST }}
+        EC2_INSTANCE_USER: ${{ secrets.EC2_USER }}
+        SITE_PATH: /home/ec2-user/your-app-directory
+      run: |
+        scp -r . $EC2_INSTANCE_USER@$EC2_INSTANCE_HOST:$SITE_PATH
+        ssh $EC2_INSTANCE_USER@$EC2_INSTANCE_HOST "cd $SITE_PATH && npm install && pm2 restart your-app-name"
