@@ -1,0 +1,17 @@
+version: 0.0
+os: linux
+files:
+  - source: .
+    destination: /home/ec2-user/your-app-directory
+
+hooks:
+  AfterInstall:
+    - location: npm install
+      timeout: 300
+      runas: ec2-user
+    - location: npm run build
+      timeout: 300
+      runas: ec2-user
+    - location: pm2 restart lovely-backend-project-
+      timeout: 300
+      runas: ec2-user
